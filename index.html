@@ -5,20 +5,23 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Document</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link rel="stylesheet" href="./fonts/font.css">
    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-   <canvas id="canvas" class="field" width="900" height="900"></canvas>
-   <div class="information">
-      <div class="lives">
-         <p></p>
+<body class="content">
+   <div class="wrapper">
+      <canvas id="canvas" class="canvas"></canvas>
+      <div class="information">
+         <p class="score_value"></p>
+         <p class="lives_value"></p>
+         <p class="level_value"></p>
       </div>
-      <div class="score">
-         <p></p>
-      </div>
+      <p class="game_over invisible">game over</p>
+      <script src="script.js"></script>
    </div>
-   <script src="script.js"></script>
 </body>
 
 </html>

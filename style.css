@@ -1,21 +1,73 @@
-body{
-    /* height: 100%; */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    /* margin: auto; */
-    background-color: blanchedalmond;
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
 }
 
-.field{
-    background-color: cadetblue;
+body {
+  margin: 0;
 }
 
-.information{
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+li {
+  margin: 0;
+  padding: 0;
+}
+
+html { 
+    overflow:  hidden; 
+}
+
+.wrapper {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100vh;
+  display: flex;
+  justify-content: center;
+  background-size: cover;
+}
+
+.canvas {
+    inline-size: 100%;
+    background: #9ee99e;
+    background-image: url(./images/snake.jpg);
+    background-position: center;
+    background-size: cover;
+    /* border: 10px solid #346d34; */
+    box-shadow: 0 10px 60px 50px #00b109;
+}
+
+.information {
+    position: absolute;
+    inset-block-start: calc(100vh - 95px);
+    inset-inline-start: 30px;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    inline-size: 600px;
-    font-size: 34px;
+    gap: 100px;
+    font-family: 'KGShakeitOffChunky', sans-serif;
+    color: #71a77169;
+    text-transform: uppercase;
+    font-size: 44px;
+}
+
+.game_over{
+  display: block;
+  position: absolute;
+  inset-block-start: calc(50% - 100px);
+  text-transform: uppercase;
+  font-family: 'KGShakeitOffChunky', sans-serif;
+  color: #71a771;
+  -webkit-text-stroke: 4px yellow;
+  font-size: 120px;
+}
+
+.invisible {
+  display: none;
 }

@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'KGShakeitOffChunky';
+    font-weight: normal;
+    font-style: normal;
+    src: local('KGShakeitOffChunky'),
+    url('KGShakeitOffChunky.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'SnakeGameDemoRegular';
+    font-style: normal;
+    font-weight: normal;
+    src: local('SnakeGameDemoRegular'), 
+    url('SnakeGameDemoRegular.woff') format('woff');
+}

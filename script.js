@@ -1,91 +1,128 @@
+'use strict';
+
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
+
+let scoreValue = document.querySelector('.score_value');
+let livesValue = document.querySelector('.lives_value');
+let levelValue = document.querySelector('.level_value');
+
 let direction = '';
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
 
 document.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'ArrowUp':
-            direction = 'UP';
+            if (direction !== 'DOWN') direction = 'UP';
             break;
         case 'ArrowRight':
-            direction = 'RIGHT';
+            if (direction !== 'LEFT') direction = 'RIGHT';
             break;
         case 'ArrowDown':
-            direction = 'DOWN';
+            if (direction !== 'UP') direction = 'DOWN';
             break;
         case 'ArrowLeft':
-            direction = 'LEFT';
+            if (direction !== 'RIGHT') direction = 'LEFT';
             break;
     }
 });
 
-let speed = 120;
+let speed = 100;
 let score = 0;
 let lives = 3;
-let snake = [{ x: 400, y: 400 }];
-let fruits = [{ x: 100, y: 100 }, { x: 300, y: 700 }, { x: 600, y: 200 }];
-let newX = snake[0].x;
-let newY = snake[0].y;
-let fruitToDelete = 0;
+let level = 0;
+let snake = [];
+let fruits = [];
+let newX = null;
+let newY = null;
+let fruitToDelete = null;
 
+
+(function initialFrame() {
+    canvas.style.backdropFilter = "blur(3px)";
+    snake.push({ x: (Math.ceil((width / 40)) * 20), y: (Math.ceil((height / 40)) * 20) });
+    newX = snake[0].x;
+    newY = snake[0].y;
+    for (let i = 0; i < 10; i++) addNewFruit();
+})();
+
+let interval = setInterval(gameLoop, speed);
 
 // Основной цикл игры
-let interval = setInterval(function () {
-    context.clearRect(0, 0, canvas.width, canvas.height); // перед отрисовкой нового кадра очищаем canvas
+function gameLoop() {
+    context.clearRect(0, 0, width, height);
     renderingFrame();
     moveNewPosition();
-    
+
     if (snake.length > 4)
-        if (headEatTail()) lives--;
+        if (isHeadEatTail()) lives--;
 
-    if (lives === 0) clearInterval(interval);
+    if (lives === 0) {
+        fruits = [];
+        snake = [];
+        document.querySelector('.game_over').classList.remove('invisible');
+    }
 
-    if (headEatFruit(fruits)) {
+    if (isHeadEatFruit(fruits)) {
         addTail();
         addNewFruit();
         score++;
+
+        if (speed > 0 && (score % 3 === 0)) {
+            speed -= 2;
+            level++;
+
+            clearInterval(interval);
+            interval = setInterval(gameLoop, speed);
+        }
     }
 
-    document.querySelector('.lives p').textContent = lives === 0 ? 'КОНЕЦ ИГРЫ' : `Жизни: ${lives}`;
-    document.querySelector('.score p').textContent = `Счёт: ${score}`;
-}, speed);
+    scoreValue.textContent = `score: ${score}`;
+    livesValue.textContent = `lives:  ${lives}`;
+    levelValue.textContent = `level: ${level}`;
+}
 
-// отрисовка кадра 
+// Отрисовка кадра 
 function renderingFrame() {
-    context.fillStyle = 'green';
     snake.forEach((el) => {
+        if (snake.indexOf(el) === 0) context.fillStyle = 'white';
+        else context.fillStyle = 'lightGreen';
         context.fillRect(el.x, el.y, 20, 20);
     });
 
     context.fillStyle = 'orange';
+    context.strokeStyle = 'red';
+    context.lineWidth = 1;
     if (fruits.length !== 0) {
         fruits.forEach((el) => {
+            context.strokeRect(el.x - 1, el.y - 1, 22, 22);
             context.fillRect(el.x, el.y, 20, 20);
         })
     }
 }
 
-// перемещаем змею с шагом 20 пикселей
+// Перемещаем змею с шагом 20 пикселей
 function moveNewPosition() {
     switch (direction) {
         case 'UP':
             snake[0].y -= 20;
-            checkYBorder()
+            if (snake[0].y < 0) snake[0].y = height - 20;
             changeTailPosition();
             break
         case 'RIGHT':
             snake[0].x += 20;
-            checkXBorder();
+            if (snake[0].x > width - 20) snake[0].x = 0;
             changeTailPosition();
             break
         case 'DOWN':
             snake[0].y += 20;
-            checkYBorder();
+            if (snake[0].y > height - 20) snake[0].y = 0;
             changeTailPosition();
             break
         case 'LEFT':
             snake[0].x -= 20;
-            checkXBorder();
+            if (snake[0].x < 0) snake[0].x = width - 20;
             changeTailPosition();
             break
     }
@@ -94,7 +131,7 @@ function moveNewPosition() {
     newY = snake[0].y;
 }
 
-// пробрасываем координаты от головы последовательно по всему хвосту
+// Пробрасываем координаты от головы последовательно по всему хвосту
 function changeTailPosition() {
     for (let i = 1; i < snake.length; i++) {
         let Y = snake[i].y;
@@ -106,19 +143,8 @@ function changeTailPosition() {
     }
 }
 
-// проверяем, достигла ли змея границ canvas, если да то выходим с противоположной стороны
-function checkXBorder() {
-    if (snake[0].x < 0) snake[0].x = 880;
-    if (snake[0].x > 880) snake[0].x = 0;
-}
-
-function checkYBorder() {
-    if (snake[0].y < 0) snake[0].y = 880;
-    if (snake[0].y > 880) snake[0].y = 0;
-}
-
-// проверяем совпадение координат головы змеи и фрукта
-function headEatFruit() {
+// Проверяем совпадение координат головы и фрукта
+function isHeadEatFruit() {
     for (let i = 0; i < fruits.length; i++) {
         if (snake[0].x === fruits[i].x && snake[0].y === fruits[i].y) {
             fruitToDelete = fruits[i];
@@ -129,12 +155,10 @@ function headEatFruit() {
     return false;
 }
 
-// проверяем не наткнулась ли змея сама на себя
-function headEatTail() {
+// Проверяем не наткнулась ли голова на хвост
+function isHeadEatTail() {
     for (let i = 3; i < snake.length; i++) {
-        if (snake[0].x === snake[i].x && snake[0].y === snake[i].y) {
-            return true;
-        }
+        if (snake[0].x === snake[i].x && snake[0].y === snake[i].y) return true;
     }
     return false;
 }
@@ -144,10 +168,20 @@ function addTail() {
 }
 
 function addNewFruit() {
-    fruits.push({ x: getRnd(), y: getRnd() });
+    fruits.push({ x: getRnd(width - 20), y: getRnd(height - 20) });
 }
 
-// с помощью этой функции получаем рандомные координаты кратные 20-ти
-function getRnd() {
-    return Math.ceil(Math.random() * 10) * 80;
+// Получаем рандомные координаты кратные 20-ти
+function getRnd(maxValue) {
+    return Math.ceil((Math.random() * maxValue) / 20) * 20;
 }
+
+// Перерисовываем кадр при изменении размера окна
+let resize = function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    fruits = [];
+    for (let i = 0; i < 10; i++) addNewFruit();
+    renderingFrame();
+}
+window.addEventListener('resize', resize);
